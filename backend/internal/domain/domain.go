@@ -6,11 +6,13 @@ type ProviderName string
 
 const (
 	ProviderNetplay ProviderName = "NETPLAY"
+	ProviderNetflix ProviderName = "NETFLIX"
 )
 
 type Plan string
 
 const (
+	PlanBasic30D   Plan = "BASIC_30D"
 	PlanPremium30D Plan = "PREMIUM_30D"
 )
 

@@ -24,7 +24,7 @@ JSON file storage. It is simple, survives restart, and fits the assignment witho
 
 ## Assumptions
 
-- Only `NETPLAY` and `PREMIUM_30D` are supported for now.
+- `NETPLAY` is the real provider integration; `NETFLIX` is included as a demo provider.
 - Frontend activation route uses `/activation/{code}`.
 - Local activation code is the frontend-facing token.
 

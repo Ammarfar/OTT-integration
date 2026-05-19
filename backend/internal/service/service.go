@@ -166,6 +166,12 @@ func validateSubscribeCommand(cmd domain.SubscribeCommand) error {
 	if strings.TrimSpace(string(cmd.Plan)) == "" {
 		return fmt.Errorf("%w: plan is required", ErrInvalidInput)
 	}
+	if cmd.Provider != domain.ProviderNetplay && cmd.Provider != domain.ProviderNetflix {
+		return ErrUnsupported
+	}
+	if cmd.Plan != domain.PlanPremium30D && cmd.Plan != domain.PlanBasic30D {
+		return ErrUnsupported
+	}
 	return nil
 }
 
