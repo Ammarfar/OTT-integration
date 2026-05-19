@@ -19,7 +19,7 @@ func (c *Client) Name() domain.ProviderName {
 }
 
 func (c *Client) Plans() []domain.Plan {
-	return []domain.Plan{domain.PlanBasic30D}
+	return []domain.Plan{domain.PlanPremium30D}
 }
 
 func (c *Client) Subscribe(_ context.Context, cmd domain.SubscribeCommand, _ string) (domain.ProviderSubscribeResult, error) {

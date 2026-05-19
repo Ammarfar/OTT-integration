@@ -165,8 +165,8 @@ func TestBackendE2EFlow(t *testing.T) {
 	if statusResp.SubscriptionRequestID != "SUBREQ-1" {
 		t.Fatalf("expected subscription request id SUBREQ-1, got %s", statusResp.SubscriptionRequestID)
 	}
-	if statusResp.TokenExpiresAt == "" {
-		t.Fatalf("expected token expires at")
+	if statusResp.SubscriptionStatus != "active" {
+		t.Fatalf("expected active subscription status, got %s", statusResp.SubscriptionStatus)
 	}
 
 	providersReq := httptest.NewRequest(http.MethodGet, "/api/providers", nil)

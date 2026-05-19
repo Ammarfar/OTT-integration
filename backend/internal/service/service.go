@@ -126,6 +126,11 @@ func (s *Service) SubscriptionStatus(ctx context.Context, cmd domain.StatusComma
 		return domain.StatusResult{}, fmt.Errorf("get activation record: %w", err)
 	}
 
+	if record.ActivationStatus == domain.ActivationStatusSuccess || record.ActivatedAt != nil || record.ExternalReferenceID != "" {
+		record.SubscriptionStatus = domain.SubscriptionStatusActive
+		return domain.StatusResult{Record: record}, nil
+	}
+
 	client, ok := s.providers.Get(record.Provider)
 	if !ok {
 		return domain.StatusResult{}, ErrUnsupported
