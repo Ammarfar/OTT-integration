@@ -14,9 +14,26 @@ go run ./cmd/api
 
 - `PORT` default `8080`
 - `FRONTEND_BASE_URL` default `http://localhost:5173`
+- `CORS_ALLOWED_ORIGIN` default `http://localhost:5173`
 - `NETPLAY_BASE_URL` default `https://ctazh5lrhe.execute-api.ap-southeast-3.amazonaws.com/dev/api`
 - `STORE_PATH` default `data/activations.json`
 - `HTTP_TIMEOUT_SECONDS` default `10`
+
+## HTTP Response Shape
+
+All API responses use the same envelope:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {}
+}
+```
+
+- `code` is the HTTP status code.
+- `message` is a short human-readable summary.
+- `data` contains the endpoint payload, or error details for failures.
 
 ## Persistence Choice
 

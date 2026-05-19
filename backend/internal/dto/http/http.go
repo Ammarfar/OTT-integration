@@ -1,5 +1,11 @@
 package httpdto
 
+type Response[T any] struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
+}
+
 type SubscribeRequest struct {
 	UserID   string `json:"userId"`
 	MSISDN   string `json:"msisdn"`
@@ -45,4 +51,13 @@ type SubscriptionStatusResponse struct {
 type ProviderInfo struct {
 	Name  string   `json:"name"`
 	Plans []string `json:"plans"`
+}
+
+type ProvidersResponse struct {
+	Providers []ProviderInfo `json:"providers"`
+}
+
+type ErrorResponse struct {
+	Code  string `json:"code,omitempty"`
+	Error string `json:"error,omitempty"`
 }

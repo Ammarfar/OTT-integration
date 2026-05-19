@@ -32,11 +32,11 @@ async function requestJSON(path, options) {
   }
 
   if (!response.ok) {
-    const message = data?.message ?? data?.error ?? 'Request failed'
+    const message = data?.message ?? data?.data?.error ?? data?.error ?? 'Request failed'
     throw new Error(message)
   }
 
-  return data
+  return data?.data ?? null
 }
 
 export default function App() {

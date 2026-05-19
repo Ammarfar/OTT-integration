@@ -51,7 +51,7 @@ func (h *Handler) subscribe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpdto.SubscribeResponse{
+	writeSuccess(c, http.StatusOK, "success", httpdto.SubscribeResponse{
 		SubscriptionRequestID: result.Record.SubscriptionRequestID,
 		ActivationCode:        result.Record.ActivationCode,
 		ActivationLink:        result.ActivationURL,
@@ -76,7 +76,7 @@ func (h *Handler) activate(c *gin.Context) {
 	}
 
 	record := result.Record
-	c.JSON(http.StatusOK, httpdto.ActivateResponse{
+	writeSuccess(c, http.StatusOK, "success", httpdto.ActivateResponse{
 		Provider:            string(record.Provider),
 		UserID:              record.UserID,
 		ActivationStatus:    string(record.ActivationStatus),
@@ -98,7 +98,7 @@ func (h *Handler) subscriptionStatus(c *gin.Context) {
 	}
 
 	record := result.Record
-	c.JSON(http.StatusOK, httpdto.SubscriptionStatusResponse{
+	writeSuccess(c, http.StatusOK, "success", httpdto.SubscriptionStatusResponse{
 		SubscriptionRequestID: record.SubscriptionRequestID,
 		UserID:                record.UserID,
 		Provider:              string(record.Provider),
@@ -125,13 +125,22 @@ func (h *Handler) providers(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"providers": response})
+	writeSuccess(c, http.StatusOK, "success", httpdto.ProvidersResponse{Providers: response})
 }
 
 func writeError(c *gin.Context, status int, code, message string) {
-	c.JSON(status, gin.H{
-		"code":    code,
-		"message": message,
+	c.JSON(status, httpdto.Response[httpdto.ErrorResponse]{
+		Code:    status,
+		Message: message,
+		Data:    httpdto.ErrorResponse{Code: code, Error: message},
+	})
+}
+
+func writeSuccess[T any](c *gin.Context, status int, message string, data T) {
+	c.JSON(status, httpdto.Response[T]{
+		Code:    status,
+		Message: message,
+		Data:    data,
 	})
 }
 

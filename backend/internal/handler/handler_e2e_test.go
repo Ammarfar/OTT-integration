@@ -101,26 +101,33 @@ func TestBackendE2EFlow(t *testing.T) {
 	}
 
 	var subscribeResp struct {
-		SubscriptionRequestID string `json:"subscriptionRequestId"`
-		ActivationCode        string `json:"activationCode"`
-		ActivationLink        string `json:"activationLink"`
-		SMSMessage            string `json:"smsMessage"`
-		Status                string `json:"status"`
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Data    struct {
+			SubscriptionRequestID string `json:"subscriptionRequestId"`
+			ActivationCode        string `json:"activationCode"`
+			ActivationLink        string `json:"activationLink"`
+			SMSMessage            string `json:"smsMessage"`
+			Status                string `json:"status"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(subscribeRec.Body.Bytes(), &subscribeResp); err != nil {
 		t.Fatalf("unmarshal subscribe response: %v", err)
 	}
-	if subscribeResp.SubscriptionRequestID != "SUBREQ-1" {
-		t.Fatalf("expected subscription request id SUBREQ-1, got %s", subscribeResp.SubscriptionRequestID)
+	if subscribeResp.Code != http.StatusOK {
+		t.Fatalf("expected code 200, got %d", subscribeResp.Code)
 	}
-	if subscribeResp.ActivationCode == "" {
+	if subscribeResp.Data.SubscriptionRequestID != "SUBREQ-1" {
+		t.Fatalf("expected subscription request id SUBREQ-1, got %s", subscribeResp.Data.SubscriptionRequestID)
+	}
+	if subscribeResp.Data.ActivationCode == "" {
 		t.Fatalf("expected activation code")
 	}
-	if subscribeResp.ActivationLink != "http://frontend.local/activation/"+subscribeResp.ActivationCode {
-		t.Fatalf("unexpected activation link: %s", subscribeResp.ActivationLink)
+	if subscribeResp.Data.ActivationLink != "http://frontend.local/activation/"+subscribeResp.Data.ActivationCode {
+		t.Fatalf("unexpected activation link: %s", subscribeResp.Data.ActivationLink)
 	}
 
-	activateReq := httptest.NewRequest(http.MethodPost, "/api/activate", strings.NewReader(`{"activationCode":"`+subscribeResp.ActivationCode+`"}`))
+	activateReq := httptest.NewRequest(http.MethodPost, "/api/activate", strings.NewReader(`{"activationCode":"`+subscribeResp.Data.ActivationCode+`"}`))
 	activateReq.Header.Set("Content-Type", "application/json")
 	activateRec := httptest.NewRecorder()
 	router.ServeHTTP(activateRec, activateReq)
@@ -130,23 +137,27 @@ func TestBackendE2EFlow(t *testing.T) {
 	}
 
 	var activateResp struct {
-		Provider            string `json:"provider"`
-		UserID              string `json:"userId"`
-		ActivationStatus    string `json:"activationStatus"`
-		SubscriptionStatus  string `json:"subscriptionStatus"`
-		Plan                string `json:"plan"`
-		ExternalReferenceID string `json:"externalReferenceId"`
-		ActivatedAt         string `json:"activatedAt"`
-		Message             string `json:"message"`
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Data    struct {
+			Provider            string `json:"provider"`
+			UserID              string `json:"userId"`
+			ActivationStatus    string `json:"activationStatus"`
+			SubscriptionStatus  string `json:"subscriptionStatus"`
+			Plan                string `json:"plan"`
+			ExternalReferenceID string `json:"externalReferenceId"`
+			ActivatedAt         string `json:"activatedAt"`
+			Message             string `json:"message"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(activateRec.Body.Bytes(), &activateResp); err != nil {
 		t.Fatalf("unmarshal activate response: %v", err)
 	}
-	if activateResp.SubscriptionStatus != "active" {
-		t.Fatalf("expected active subscription status, got %s", activateResp.SubscriptionStatus)
+	if activateResp.Data.SubscriptionStatus != "active" {
+		t.Fatalf("expected active subscription status, got %s", activateResp.Data.SubscriptionStatus)
 	}
 
-	statusReq := httptest.NewRequest(http.MethodGet, "/api/subscription-status?activationCode="+subscribeResp.ActivationCode, nil)
+	statusReq := httptest.NewRequest(http.MethodGet, "/api/subscription-status?activationCode="+subscribeResp.Data.ActivationCode, nil)
 	statusRec := httptest.NewRecorder()
 	router.ServeHTTP(statusRec, statusReq)
 
@@ -155,18 +166,22 @@ func TestBackendE2EFlow(t *testing.T) {
 	}
 
 	var statusResp struct {
-		SubscriptionRequestID string `json:"subscriptionRequestId"`
-		SubscriptionStatus    string `json:"subscriptionStatus"`
-		TokenExpiresAt        string `json:"tokenExpiresAt"`
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Data    struct {
+			SubscriptionRequestID string `json:"subscriptionRequestId"`
+			SubscriptionStatus    string `json:"subscriptionStatus"`
+			TokenExpiresAt        string `json:"tokenExpiresAt"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(statusRec.Body.Bytes(), &statusResp); err != nil {
 		t.Fatalf("unmarshal status response: %v", err)
 	}
-	if statusResp.SubscriptionRequestID != "SUBREQ-1" {
-		t.Fatalf("expected subscription request id SUBREQ-1, got %s", statusResp.SubscriptionRequestID)
+	if statusResp.Data.SubscriptionRequestID != "SUBREQ-1" {
+		t.Fatalf("expected subscription request id SUBREQ-1, got %s", statusResp.Data.SubscriptionRequestID)
 	}
-	if statusResp.SubscriptionStatus != "active" {
-		t.Fatalf("expected active subscription status, got %s", statusResp.SubscriptionStatus)
+	if statusResp.Data.SubscriptionStatus != "active" {
+		t.Fatalf("expected active subscription status, got %s", statusResp.Data.SubscriptionStatus)
 	}
 
 	providersReq := httptest.NewRequest(http.MethodGet, "/api/providers", nil)
