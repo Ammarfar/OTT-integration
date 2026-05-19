@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -169,6 +170,7 @@ func RequestTimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
 func NewRouter(svc *service.Service, timeout time.Duration) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(corsMiddleware("*"))
 	router.Use(RequestTimeoutMiddleware(timeout))
 
 	h := New(svc)
@@ -178,5 +180,33 @@ func NewRouter(svc *service.Service, timeout time.Duration) *gin.Engine {
 }
 
 func NewRouterFromConfig(svc *service.Service, cfg config.Config) *gin.Engine {
-	return NewRouter(svc, cfg.HTTPTimeout)
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(corsMiddleware(cfg.CORSAllowedOrigin))
+	router.Use(RequestTimeoutMiddleware(cfg.HTTPTimeout))
+
+	h := New(svc)
+	h.RegisterRoutes(router)
+
+	return router
+}
+
+func corsMiddleware(allowedOrigin string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		origin := c.GetHeader("Origin")
+		if origin != "" && (allowedOrigin == "*" || strings.EqualFold(origin, allowedOrigin)) {
+			c.Header("Access-Control-Allow-Origin", origin)
+			c.Header("Vary", "Origin")
+			c.Header("Access-Control-Allow-Credentials", "true")
+			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		}
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
 }
