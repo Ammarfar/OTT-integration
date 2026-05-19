@@ -7,24 +7,24 @@ import (
 )
 
 type Config struct {
-	Port            string
-	FrontendBaseURL string
+	Port              string
+	FrontendBaseURL   string
 	CORSAllowedOrigin string
-	NetplayBaseURL  string
-	StorePath       string
-	HTTPTimeout     time.Duration
+	NetplayBaseURL    string
+	StorePath         string
+	HTTPTimeout       time.Duration
 }
 
 func Load() Config {
 	timeoutSeconds := getInt("HTTP_TIMEOUT_SECONDS", 10)
 
 	return Config{
-		Port:            getEnv("PORT", "8080"),
-		FrontendBaseURL: getEnv("FRONTEND_BASE_URL", "http://localhost:5173"),
+		Port:              getEnv("PORT", "8080"),
+		FrontendBaseURL:   getEnv("FRONTEND_BASE_URL", "http://localhost:5173"),
 		CORSAllowedOrigin: getEnv("CORS_ALLOWED_ORIGIN", "http://localhost:5173"),
-		NetplayBaseURL:  getEnv("NETPLAY_BASE_URL", "https://ctazh5lrhe.execute-api.ap-southeast-3.amazonaws.com/dev/api"),
-		StorePath:       getEnv("STORE_PATH", "data/activations.json"),
-		HTTPTimeout:     time.Duration(timeoutSeconds) * time.Second,
+		NetplayBaseURL:    getEnv("NETPLAY_BASE_URL", "https://ctazh5lrhe.execute-api.ap-southeast-3.amazonaws.com/dev/api"),
+		StorePath:         getEnv("STORE_PATH", "data/activations.json"),
+		HTTPTimeout:       time.Duration(timeoutSeconds) * time.Second,
 	}
 }
 
