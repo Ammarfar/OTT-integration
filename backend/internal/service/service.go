@@ -73,7 +73,7 @@ func (s *Service) Subscribe(ctx context.Context, cmd domain.SubscribeCommand) (d
 	return domain.SubscribeResult{
 		Record:        record,
 		ActivationURL: link,
-		SMSMessage:    "Your NETPLAY activation link: " + link,
+		SMSMessage:    smsMessageForProvider(record.Provider, link),
 	}, nil
 }
 
@@ -203,4 +203,8 @@ func supportsPlan(plans []domain.Plan, requested domain.Plan) bool {
 		}
 	}
 	return false
+}
+
+func smsMessageForProvider(provider domain.ProviderName, link string) string {
+	return "Your " + string(provider) + " activation link: " + link
 }
